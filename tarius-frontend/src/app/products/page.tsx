@@ -2,9 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from "next/link";
 import { supabase } from "@/lib/api";
 import TrackedLink from "@/components/products/TrackedLink";
+import { scrollToSection, setHash } from '@/lib/scroll';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,12 +162,15 @@ export default function ProductsPage() {
                         )}
 
                         {actionType === 'request_allocation' && (
-                          <Link 
-                            href={"/?inquiry=buy&product=" + encodeURIComponent(product.id) + "#contact"} 
+                          <a
+                            href={`/?inquiry=buy&product=${encodeURIComponent(product.id)}#contact`}
                             className="btn-tarius w-full sm:w-auto text-center bg-[var(--tarius-graphite)] text-[var(--tarius-white)] hover:bg-[var(--tarius-olive)] hover:border-[var(--tarius-olive)] transition-all duration-300 py-3 px-6 text-xs uppercase tracking-[0.15em]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
                           >
                             Request Allocation
-                          </Link>
+                          </a>
                         )}
 
                         {actionType === 'coming_soon' && (
