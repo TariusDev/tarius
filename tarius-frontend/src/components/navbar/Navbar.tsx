@@ -11,19 +11,29 @@ import { useScrollSpy } from "@/lib/useScrollSpy";
 import { requestContactIntent } from "@/lib/contactIntent";
 import { supabase } from "@/lib/api";
 
-export default function Navbar() {
+export interface NavData {
+  links: { label: string; href: string }[];
+  ctaText: string;
+  ctaLink: string;
+}
+
+const DEFAULT_NAV: NavData = {
+  links: [
+    { label: "Shop", href: "/products" },
+    { label: "Our Story", href: "/#story" },
+    { label: "Quality", href: "/#quality" },
+    { label: "Certifications", href: "/certifications" },
+    { label: "FAQ", href: "/#faq" },
+  ],
+  ctaText: "Explore TARIUS",
+  ctaLink: "/#contact",
+};
+
+export default function Navbar({ initialNavData }: { initialNavData?: NavData }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [navData, setNavData] = useState({ 
-    links: [
-      { label: "Shop", href: "/products" },
-      { label: "Our Story", href: "/#story" },
-      { label: "Quality", href: "/#quality" },
-      { label: "Certifications", href: "/certifications" },
-      { label: "FAQ", href: "/#faq" },
-    ], 
-    ctaText: 'Explore TARIUS', 
-    ctaLink: '/#contact' 
-  });
+  // Seeded from the server so the CTA label is correct on the very first paint
+  // instead of flashing the fallback before the client fetch resolves.
+  const [navData, setNavData] = useState<NavData>(initialNavData ?? DEFAULT_NAV);
   
   const pathname = usePathname();
   const router = useRouter();

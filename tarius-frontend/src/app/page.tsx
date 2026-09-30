@@ -5,8 +5,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/api';
-import Navbar from '@/components/navbar/Navbar';
-import Footer from '@/components/footer/Footer';
 import { scrollToSection } from '@/lib/scroll';
 import { consumeContactIntent, onContactIntent } from '@/lib/contactIntent';
 
@@ -295,8 +293,6 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-
       <main className="bg-[var(--tarius-ivory)] min-h-screen font-body">
         {blocks.map((block) => {
           

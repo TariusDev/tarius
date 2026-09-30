@@ -4,8 +4,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/api';
-import Navbar from '@/components/navbar/Navbar';
-import Footer from '@/components/footer/Footer';
 
 // --- TYPES ---
 type BlockType = 'hero' | 'spotlight' | 'grid' | 'ledger' | 'text' | 'single_pdf' | 'image_banner' | 'overlay_banner' | 'dual_media' | 'divider';
@@ -56,8 +54,6 @@ export default function CertificationsPage() {
 
   return (
     <>
-      <Navbar />
-
       <main className="bg-[var(--tarius-ivory)] min-h-screen relative pb-32">
         
         {loading ? (
