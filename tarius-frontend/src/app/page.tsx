@@ -301,7 +301,7 @@ export default function Home() {
             return (
               <section key={block.id} id="home" className="relative overflow-hidden bg-[var(--tarius-ivory)]">
                 <div className="container-tarius grid min-h-[calc(100svh-76px)] items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-20">
-                  <div className="relative z-10 max-w-3xl">
+                  <div className="relative z-10 min-w-0 max-w-3xl">
                     <p className="text-eyebrow text-[var(--tarius-olive)]">
                       {block.content.eyebrow}
                     </p>
@@ -331,8 +331,8 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <div className="image-tarius relative aspect-[4/5] min-h-[420px] w-full overflow-hidden bg-[var(--tarius-ivory-deep)] sm:min-h-[520px] lg:min-h-0">
+                  <div className="relative min-w-0">
+                    <div className="image-tarius relative aspect-[4/5] min-h-[420px] w-full min-w-0 overflow-hidden bg-[var(--tarius-ivory-deep)] sm:min-h-[520px] lg:min-h-0">
                       {block.content.imageUrl && (
                         <img src={block.content.imageUrl} alt="Hero" className="w-full h-full object-cover absolute inset-0" />
                       )}
