@@ -29,7 +29,8 @@ const inquiryLabels: Record<string, string> = {
   press: 'Press & Media Inquiry',
   careers: 'Careers',
   feedback: 'General Feedback',
-  other: 'Other'
+  other: 'Other',
+  interested: 'Interested'
 };
 
 export default function AdminInquiries() {

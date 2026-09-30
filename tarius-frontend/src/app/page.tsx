@@ -8,6 +8,7 @@ import { supabase } from '@/lib/api';
 import Navbar from '@/components/navbar/Navbar';
 import Footer from '@/components/footer/Footer';
 import { scrollToSection } from '@/lib/scroll';
+import { consumeContactIntent, onContactIntent } from '@/lib/contactIntent';
 
 // --- TYPES ---
 type BlockType = 'hero' | 'story' | 'quality' | 'faq' | 'contact' | 'image_break' | 'rich_text' | 'dual_panel' | 'spacer' | 'quote' | 'mission' | 'image_collage';
@@ -103,12 +104,25 @@ export default function Home() {
     fetchPageData();
   }, []);
 
-  // When arriving from a product's "Request Allocation" button, pre-select the
-  // "Where to Buy" inquiry option in the contact form.
+
   useEffect(() => {
     if (window.location.search.includes('inquiry=buy')) {
       setSelectedInquiry('buy');
     }
+  }, []);
+
+
+  useEffect(() => {
+    const applyIntent = (intent: string) => {
+      if (intent !== 'interested') return;
+      setSelectedInquiry('interested');
+      scrollToSection('contact');
+    };
+
+    const pending = consumeContactIntent();
+    if (pending) applyIntent(pending);
+
+    return onContactIntent(applyIntent);
   }, []);
 
   useEffect(() => {
@@ -159,6 +173,21 @@ export default function Home() {
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Name and a valid email are mandatory for every inquiry type.
+    const trimmedName = contactData.name.trim();
+    const trimmedEmail = contactData.email.trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
+
+    if (!trimmedName) {
+      alert('Please enter your name.');
+      return;
+    }
+    if (!isValidEmail) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
     setIsContactSubmitting(true);
 
     const metaData: string[] = [];
@@ -556,7 +585,8 @@ export default function Home() {
                               <option value="press" className="bg-[var(--tarius-graphite)]">9. Press & Media Inquiry</option>
                               <option value="careers" className="bg-[var(--tarius-graphite)]">10. Careers</option>
                               <option value="feedback" className="bg-[var(--tarius-graphite)]">11. General Feedback</option>
-                              <option value="other" className="bg-[var(--tarius-graphite)]">12. Other</option>
+                              <option value="interested" className="bg-[var(--tarius-graphite)]">12. Interested</option>
+                              <option value="other" className="bg-[var(--tarius-graphite)]">13. Other</option>
                             </select>
                             <div className="absolute right-0 top-8 pointer-events-none text-stone-400">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7"></path></svg>
@@ -694,13 +724,13 @@ export default function Home() {
                                 <textarea 
                                   name="message" 
                                   rows={4} 
-                                  required 
+                                  required={selectedInquiry !== 'interested'}
                                   value={contactData.message}
                                   onChange={handleContactChange}
                                   className="w-full bg-transparent border-b border-[var(--tarius-champagne)]/30 py-3 text-[var(--tarius-white)] font-sans text-sm focus:outline-none focus:border-[var(--tarius-champagne)] transition-colors peer placeholder-transparent resize-none" 
-                                  placeholder="Detailed Inquiry Description..."
+                                  placeholder={selectedInquiry === 'interested' ? "Description" : "Detailed Inquiry Description..."}
                                 />
-                                <label className="absolute left-0 top-3 text-stone-400 font-sans text-xs uppercase tracking-widest transition-all peer-focus:-top-6 peer-focus:text-[10px] peer-focus:text-[var(--tarius-champagne)] peer-valid:-top-6 peer-valid:text-[10px] peer-valid:text-stone-400 pointer-events-none">Detailed Inquiry Description</label>
+                                <label className="absolute left-0 top-3 text-stone-400 font-sans text-xs uppercase tracking-widest transition-all peer-focus:-top-6 peer-focus:text-[10px] peer-focus:text-[var(--tarius-champagne)] peer-valid:-top-6 peer-valid:text-[10px] peer-valid:text-stone-400 pointer-events-none">{selectedInquiry === 'interested' ? "Description" : "Detailed Inquiry Description"}</label>
                               </div>
 
                               <button 
@@ -708,7 +738,7 @@ export default function Home() {
                                 disabled={isContactSubmitting}
                                 className="w-full border border-[var(--tarius-champagne)] text-[var(--tarius-champagne)] py-4 mt-6 font-sans text-xs tracking-[0.15em] uppercase hover:bg-[var(--tarius-champagne)] hover:text-[var(--tarius-graphite)] transition-all duration-300 cursor-pointer shadow-lg disabled:opacity-50"
                               >
-                                {isContactSubmitting ? 'Transmitting Dossier...' : 'Submit Application'}
+                                {isContactSubmitting ? 'Transmitting Dossier...' : selectedInquiry === 'interested' ? 'Submit Interest' : 'Submit Application'}
                               </button>
 
                             </div>

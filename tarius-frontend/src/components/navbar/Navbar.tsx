@@ -8,6 +8,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { scrollToSection, scrollToTop } from "@/lib/scroll";
 import { useScrollSpy } from "@/lib/useScrollSpy";
+import { requestContactIntent } from "@/lib/contactIntent";
 import { supabase } from "@/lib/api";
 
 export default function Navbar() {
@@ -56,6 +57,21 @@ export default function Navbar() {
       router.push(href);
     }
     scrollToSection(id);
+  };
+
+
+  const handleCtaClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    requestContactIntent("interested");
+
+    const href = navData.ctaLink || "/#contact";
+    const isExternal = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("//");
+    if (isExternal) return;
+
+    e.preventDefault();
+    if (pathname !== "/") {
+      router.push("/");
+    }
+    scrollToSection("contact");
   };
 
   // Do not render the public navbar on any admin route
@@ -108,7 +124,7 @@ export default function Navbar() {
 
           <Link
             href={navData.ctaLink || "/#contact"}
-            onClick={(e) => { if (navData.ctaLink?.startsWith("/#")) handleSectionClick(e, navData.ctaLink); }}
+            onClick={handleCtaClick}
             className="btn-tarius ml-2"
           >
             {navData.ctaText}
@@ -162,7 +178,7 @@ export default function Navbar() {
 
           <Link
             href={navData.ctaLink || "/#contact"}
-            onClick={(e) => { closeMenu(); if (navData.ctaLink?.startsWith("/#")) handleSectionClick(e, navData.ctaLink); }}
+            onClick={(e) => { closeMenu(); handleCtaClick(e); }}
             className="btn-tarius mt-5 w-full text-center"
           >
             {navData.ctaText}
