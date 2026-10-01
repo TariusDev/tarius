@@ -2,13 +2,16 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/api';
+import { useSearchParams } from 'next/navigation';
 
-export default function Contact(props: { id?: string }) {
+function ContactFormCore(props: { id?: string }) {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [selectedInquiry, setSelectedInquiry] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  
+  const searchParams = useSearchParams();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -16,6 +19,9 @@ export default function Contact(props: { id?: string }) {
     phone: '',
     preferredContact: 'email',
     message: '',
+    
+    // HONEYPOT TRAP - Bots will fill this, humans won't see it
+    secondary_email: '',
     
     giftingProducts: { spirulina: false, moringa: false },
     spirulinaQty: '1',
@@ -38,6 +44,14 @@ export default function Contact(props: { id?: string }) {
     purchasePlatform: '',
     purchaseDate: '',
   });
+
+  // REACTIVE DROPDOWN FROM NEXT.JS SEARCH PARAMS
+  useEffect(() => {
+    const inquiryParam = searchParams?.get('inquiry');
+    if (inquiryParam) {
+      setSelectedInquiry(inquiryParam);
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -113,7 +127,6 @@ export default function Contact(props: { id?: string }) {
       return;
     }
 
-    // Trigger the automated emails quietly in the background
     try {
       const emailPayload = {
         ...formData,
@@ -136,7 +149,7 @@ export default function Contact(props: { id?: string }) {
       setSubmitted(false);
       setSelectedInquiry('');
       setFormData({
-        name: '', email: '', phone: '', preferredContact: 'email', message: '',
+        name: '', email: '', phone: '', preferredContact: 'email', message: '', secondary_email: '',
         giftingProducts: { spirulina: false, moringa: false },
         spirulinaQty: '1', moringaQty: '1', deliveryDate: '', deliveryTime: '', deliveryLocation: '',
         socialHandle: '', collaborationReason: '', collabProducts: '', eventDate: '', eventTime: '',
@@ -189,6 +202,20 @@ export default function Contact(props: { id?: string }) {
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 
+                {/* HONEYPOT TRAP - COMPLETELY INVISIBLE TO HUMANS */}
+                <div className="opacity-0 absolute w-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                  <label htmlFor="secondary_email">Please leave this field blank</label>
+                  <input 
+                    type="email" 
+                    name="secondary_email" 
+                    id="secondary_email" 
+                    tabIndex={-1} 
+                    autoComplete="off"
+                    value={formData.secondary_email}
+                    onChange={handleChange}
+                  />
+                </div>
+                
                 <div className="relative">
                   <label className="block text-[var(--tarius-champagne)] font-sans text-[10px] uppercase tracking-widest mb-2">Nature of Inquiry</label>
                   <select 
@@ -199,18 +226,19 @@ export default function Contact(props: { id?: string }) {
                     className="w-full bg-transparent border-b border-[var(--tarius-champagne)]/30 py-3 text-[var(--tarius-white)] font-sans text-sm focus:outline-none focus:border-[var(--tarius-champagne)] transition-colors appearance-none cursor-pointer"
                   >
                     <option value="" className="bg-[var(--tarius-graphite)] text-stone-400">[Select Inquiry Type...]</option>
-                    <option value="product" className="bg-[var(--tarius-graphite)]">1. Product Inquiry (Ingredients, Sourcing, Dosage)</option>
-                    <option value="buy" className="bg-[var(--tarius-graphite)]">2. Where to Buy (Stockist / Platform Stock)</option>
-                    <option value="bulk" className="bg-[var(--tarius-graphite)]">3. Bulk / Wholesale Inquiry</option>
-                    <option value="retail" className="bg-[var(--tarius-graphite)]">4. Retail / Stockist Partnership</option>
-                    <option value="quality" className="bg-[var(--tarius-graphite)]">5. Quality Complaint (Defect, Seal, Batch Issue)</option>
-                    <option value="cert" className="bg-[var(--tarius-graphite)]">6. Certification / Documentation Request (COA, FSSAI)</option>
-                    <option value="gifting" className="bg-[var(--tarius-graphite)]">7. Corporate / Custom Gifting</option>
-                    <option value="collab" className="bg-[var(--tarius-graphite)]">8. Collaboration / Influencer Partnership</option>
-                    <option value="press" className="bg-[var(--tarius-graphite)]">9. Press & Media Inquiry</option>
-                    <option value="careers" className="bg-[var(--tarius-graphite)]">10. Careers</option>
-                    <option value="feedback" className="bg-[var(--tarius-graphite)]">11. General Feedback</option>
-                    <option value="other" className="bg-[var(--tarius-graphite)]">12. Other</option>
+                    <option value="interest" className="bg-[var(--tarius-graphite)]">1. General Interest / Explore TARIUS</option>
+                    <option value="product" className="bg-[var(--tarius-graphite)]">2. Product Inquiry (Ingredients, Sourcing, Dosage)</option>
+                    <option value="buy" className="bg-[var(--tarius-graphite)]">3. Where to Buy (Stockist / Platform Stock)</option>
+                    <option value="bulk" className="bg-[var(--tarius-graphite)]">4. Bulk / Wholesale Inquiry</option>
+                    <option value="retail" className="bg-[var(--tarius-graphite)]">5. Retail / Stockist Partnership</option>
+                    <option value="quality" className="bg-[var(--tarius-graphite)]">6. Quality Complaint (Defect, Seal, Batch Issue)</option>
+                    <option value="cert" className="bg-[var(--tarius-graphite)]">7. Certification / Documentation Request</option>
+                    <option value="gifting" className="bg-[var(--tarius-graphite)]">8. Corporate / Custom Gifting</option>
+                    <option value="collab" className="bg-[var(--tarius-graphite)]">9. Collaboration / Influencer Partnership</option>
+                    <option value="press" className="bg-[var(--tarius-graphite)]">10. Press & Media Inquiry</option>
+                    <option value="careers" className="bg-[var(--tarius-graphite)]">11. Careers</option>
+                    <option value="feedback" className="bg-[var(--tarius-graphite)]">12. General Feedback</option>
+                    <option value="other" className="bg-[var(--tarius-graphite)]">13. Other</option>
                   </select>
                   <div className="absolute right-0 top-8 pointer-events-none text-stone-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7"></path></svg>
@@ -362,5 +390,13 @@ export default function Contact(props: { id?: string }) {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function Contact(props: { id?: string }) {
+  return (
+    <Suspense fallback={<section id={props.id} className="section-tarius bg-[var(--tarius-graphite)] py-32"></section>}>
+      <ContactFormCore id={props.id} />
+    </Suspense>
   );
 }

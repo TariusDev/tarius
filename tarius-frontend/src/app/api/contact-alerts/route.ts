@@ -20,6 +20,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    // ==========================================
+    // HONEYPOT TRAP: DROP BOTS SILENTLY
+    // ==========================================
+    if (body.secondary_email && body.secondary_email.length > 0) {
+      console.warn("BOT CAUGHT: Honeypot triggered. Dropping request silently.");
+      return NextResponse.json({ success: true }); // Fake success so the bot leaves
+    }
+    // ==========================================
+
     let extraDetailsHTML = "";
 
     if (body.tier === 'gifting') {
@@ -49,7 +58,7 @@ export async function POST(request: Request) {
       extraDetailsHTML += "<p style=\"color: #a8a29e; font-size: 14px; margin: 4px 0;\"><strong style=\"color: #ffffff;\">Purchased Platform:</strong> " + (body.purchasePlatform || "Not specified") + "</p>";
       extraDetailsHTML += "<p style=\"color: #a8a29e; font-size: 14px; margin: 4px 0;\"><strong style=\"color: #ffffff;\">Purchase Date:</strong> " + (body.purchaseDate || "Not specified") + "</p>";
     }
-    else if (body.tier === 'buy') {
+    else if (body.tier === 'buy' || body.tier === 'product') {
       extraDetailsHTML += "<h3 style=\"color: #c8b99a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #3f3f46; padding-bottom: 8px; margin-top: 24px;\">Product Selection</h3>";
       extraDetailsHTML += "<p style=\"color: #a8a29e; font-size: 14px; margin: 4px 0;\"><strong style=\"color: #ffffff;\">Product:</strong> " + (body.product || "Not specified") + "</p>";
     }
@@ -86,7 +95,6 @@ export async function POST(request: Request) {
       
       "</div></div>";
 
-    // EXPLICIT ERROR CHECKING ADDED HERE
     const adminEmailResponse = await resend.emails.send({
       from: 'Tarius System <admin@tarius.in>',
       to: 'admin@tarius.in', 
@@ -108,7 +116,6 @@ export async function POST(request: Request) {
       "<p style=\"color: #57534e; font-size: 10px; margin-top: 40px;\">Do not reply directly to this email. For immediate assistance, please visit the sanctuary portal.</p>" +
       "</div>";
 
-    // EXPLICIT ERROR CHECKING ADDED HERE
     const userEmailResponse = await resend.emails.send({
       from: 'Tarius Concierge <admin@tarius.in>',
       to: body.email, 

@@ -31,9 +31,22 @@ const DEFAULT_NAV: NavData = {
 
 export default function Navbar({ initialNavData }: { initialNavData?: NavData }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+<<<<<<< HEAD
   // Seeded from the server so the CTA label is correct on the very first paint
   // instead of flashing the fallback before the client fetch resolves.
   const [navData, setNavData] = useState<NavData>(initialNavData ?? DEFAULT_NAV);
+=======
+  const [navData, setNavData] = useState({ 
+    links: [
+      { label: "Shop", href: "/products" },
+      { label: "Our Story", href: "/#story" },
+      { label: "Quality", href: "/#quality" },
+      { label: "Certifications", href: "/certifications" },
+      { label: "FAQ", href: "/#faq" },
+    ], 
+    ctaText: 'Explore TARIUS'
+  });
+>>>>>>> e44969d (Customer Management Portal)
   
   const pathname = usePathname();
   const router = useRouter();
@@ -42,7 +55,12 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
   useEffect(() => {
     async function fetchNav() {
       const { data } = await supabase.from('SiteSettings').select('value').eq('key', 'navbar_settings').single();
-      if (data && data.value) setNavData(data.value);
+      if (data && data.value) {
+        setNavData({
+          links: data.value.links || navData.links,
+          ctaText: data.value.ctaText || navData.ctaText
+        });
+      }
     }
     fetchNav();
   }, []);
@@ -60,15 +78,26 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
   };
 
   const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    const id = href.replace(/^\/#/, "");
+    const hashIndex = href.indexOf('#');
+    if (hashIndex === -1) return;
+    
+    const id = href.substring(hashIndex + 1);
     if (!id) return;
+    
     e.preventDefault();
+    
     if (pathname !== "/") {
       router.push(href);
+    } else {
+      router.push(href);
     }
-    scrollToSection(id);
+    
+    setTimeout(() => {
+      scrollToSection(id);
+    }, 100);
   };
 
+<<<<<<< HEAD
 
   const handleCtaClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     requestContactIntent("interested");
@@ -85,9 +114,14 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
   };
 
   // Do not render the public navbar on any admin route
+=======
+>>>>>>> e44969d (Customer Management Portal)
   if (pathname && pathname.startsWith("/admin")) {
     return null;
   }
+
+  // --- HARDCODED CTA DESTINATION ---
+  const HARDCODED_CTA_LINK = "/?inquiry=interest#contact";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-[var(--tarius-border)] bg-[var(--tarius-ivory)]/95 backdrop-blur-md">
@@ -95,7 +129,6 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
         className="container-tarius flex h-[96px] items-center justify-between"
         aria-label="Main navigation"
       >
-        {/* Logo */}
         <Link
           href="/"
           onClick={handleLogoClick}
@@ -112,18 +145,17 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
           />
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden items-center gap-8 lg:flex">
           {navData.links && navData.links.map((item: any) => {
-            const sectionId = item.href.startsWith("/#")
-              ? item.href.replace(/^\/#/, "")
+            const sectionId = item.href.includes("#")
+              ? item.href.substring(item.href.indexOf("#") + 1)
               : null;
             const isActive = sectionId !== null && activeSection === sectionId;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                onClick={item.href.startsWith("/#") ? (e) => handleSectionClick(e, item.href) : undefined}
+                onClick={item.href.includes("#") ? (e) => handleSectionClick(e, item.href) : undefined}
                 aria-current={isActive ? "true" : undefined}
                 className={"text-eyebrow relative py-2 transition-opacity duration-200 hover:opacity-60 " + (isActive ? "text-[var(--tarius-olive)]" : "text-[var(--tarius-graphite)]")}
               >
@@ -133,15 +165,19 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
           })}
 
           <Link
+<<<<<<< HEAD
             href={navData.ctaLink || "/#contact"}
             onClick={handleCtaClick}
+=======
+            href={HARDCODED_CTA_LINK}
+            onClick={(e) => handleSectionClick(e, HARDCODED_CTA_LINK)}
+>>>>>>> e44969d (Customer Management Portal)
             className="btn-tarius ml-2"
           >
             {navData.ctaText}
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           type="button"
           onClick={() => setIsMenuOpen((open) => !open)}
@@ -163,21 +199,20 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
         </button>
       </nav>
 
-      {/* Mobile Navigation */}
       <div
         className={"overflow-hidden border-t border-[var(--tarius-border)] bg-[var(--tarius-ivory)] transition-[max-height,opacity] duration-300 lg:hidden " + (isMenuOpen ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0")}
       >
         <div className="container-tarius flex flex-col py-5">
           {navData.links && navData.links.map((item: any) => {
-            const sectionId = item.href.startsWith("/#")
-              ? item.href.replace(/^\/#/, "")
+            const sectionId = item.href.includes("#")
+              ? item.href.substring(item.href.indexOf("#") + 1)
               : null;
             const isActive = sectionId !== null && activeSection === sectionId;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                onClick={(e) => { closeMenu(); if (item.href.startsWith("/#")) handleSectionClick(e, item.href); }}
+                onClick={(e) => { closeMenu(); if (item.href.includes("#")) handleSectionClick(e, item.href); }}
                 aria-current={isActive ? "true" : undefined}
                 className={"border-b border-[var(--tarius-border)] py-4 text-sm font-medium uppercase tracking-[0.14em] " + (isActive ? "text-[var(--tarius-olive)]" : "")}
               >
@@ -187,8 +222,13 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
           })}
 
           <Link
+<<<<<<< HEAD
             href={navData.ctaLink || "/#contact"}
             onClick={(e) => { closeMenu(); handleCtaClick(e); }}
+=======
+            href={HARDCODED_CTA_LINK}
+            onClick={(e) => { closeMenu(); handleSectionClick(e, HARDCODED_CTA_LINK); }}
+>>>>>>> e44969d (Customer Management Portal)
             className="btn-tarius mt-5 w-full text-center"
           >
             {navData.ctaText}
