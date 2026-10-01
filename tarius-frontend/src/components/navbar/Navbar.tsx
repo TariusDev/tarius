@@ -31,11 +31,6 @@ const DEFAULT_NAV: NavData = {
 
 export default function Navbar({ initialNavData }: { initialNavData?: NavData }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-<<<<<<< HEAD
-  // Seeded from the server so the CTA label is correct on the very first paint
-  // instead of flashing the fallback before the client fetch resolves.
-  const [navData, setNavData] = useState<NavData>(initialNavData ?? DEFAULT_NAV);
-=======
   const [navData, setNavData] = useState({ 
     links: [
       { label: "Shop", href: "/products" },
@@ -46,7 +41,6 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
     ], 
     ctaText: 'Explore TARIUS'
   });
->>>>>>> e44969d (Customer Management Portal)
   
   const pathname = usePathname();
   const router = useRouter();
@@ -97,25 +91,6 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
     }, 100);
   };
 
-<<<<<<< HEAD
-
-  const handleCtaClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    requestContactIntent("interested");
-
-    const href = navData.ctaLink || "/#contact";
-    const isExternal = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("//");
-    if (isExternal) return;
-
-    e.preventDefault();
-    if (pathname !== "/") {
-      router.push("/");
-    }
-    scrollToSection("contact");
-  };
-
-  // Do not render the public navbar on any admin route
-=======
->>>>>>> e44969d (Customer Management Portal)
   if (pathname && pathname.startsWith("/admin")) {
     return null;
   }
@@ -165,13 +140,8 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
           })}
 
           <Link
-<<<<<<< HEAD
-            href={navData.ctaLink || "/#contact"}
-            onClick={handleCtaClick}
-=======
             href={HARDCODED_CTA_LINK}
             onClick={(e) => handleSectionClick(e, HARDCODED_CTA_LINK)}
->>>>>>> e44969d (Customer Management Portal)
             className="btn-tarius ml-2"
           >
             {navData.ctaText}
@@ -222,13 +192,8 @@ export default function Navbar({ initialNavData }: { initialNavData?: NavData })
           })}
 
           <Link
-<<<<<<< HEAD
-            href={navData.ctaLink || "/#contact"}
-            onClick={(e) => { closeMenu(); handleCtaClick(e); }}
-=======
             href={HARDCODED_CTA_LINK}
             onClick={(e) => { closeMenu(); handleSectionClick(e, HARDCODED_CTA_LINK); }}
->>>>>>> e44969d (Customer Management Portal)
             className="btn-tarius mt-5 w-full text-center"
           >
             {navData.ctaText}
