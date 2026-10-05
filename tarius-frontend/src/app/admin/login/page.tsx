@@ -126,11 +126,6 @@ export default function AdminLogin() {
                 {isLoading ? 'Authenticating...' : 'Sign In'}
               </button>
 
-              <div className="text-center">
-                <Link href="/admin/forgot-password" className="text-[10px] tracking-widest uppercase text-white! font-medium hover:text-[var(--tarius-champagne)]! transition-colors border-b-2 border-[var(--tarius-champagne)] pb-1">
-                  Forgot Password
-                </Link>
-              </div>
             </div>
           </form>
         </div>
