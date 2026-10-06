@@ -1,4 +1,4 @@
-// Filename: src/app/admin/login/page.tsx
+// Filename: src/app/hq-8055/login/page.tsx
 
 'use client';
 
@@ -34,7 +34,7 @@ export default function AdminLogin() {
       setErrorMsg(error.message);
       setIsLoading(false);
     } else {
-      router.push('/admin');
+      router.push('/hq-8055');
       router.refresh();
     }
   };
